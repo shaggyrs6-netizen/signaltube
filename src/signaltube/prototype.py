@@ -1,0 +1,12 @@
+"""Fictional design fixtures. Never reads the library, history, credentials or quota."""
+VIDEOS = [
+    dict(id='approach',title='The quiet skill behind a perfect approach',creator='Flight Deck Notes',category='Aviation',kind='flight',duration='18:42',age='2 hours ago',group='Today',reason='Aviation is your chosen focus',detail='Category focus +6 · Recent upload +6',score=12),
+    dict(id='linux',title='A Linux desktop that gets out of your way',creator='The Quiet Terminal',category='Linux',kind='terminal',duration='14:08',age='5 hours ago',group='Today',reason='A favourite creator, with something new',detail='Favourite +8 · Recent upload +6',score=14),
+    dict(id='ai',title='Small models, surprisingly useful ideas',creator='Model Notebook',category='AI',kind='nodes',duration='11:36',age='Yesterday',group='Yesterday',reason='A creator you have watched before',detail='Imported creator history +3 · Recent upload +4',score=7),
+    dict(id='boat',title='Finding a quieter route along the coast',creator='Coastal Logbook',category='Boating',kind='coast',duration='23:15',age='Yesterday',group='Yesterday',reason='A change of pace from your other picks',detail='Recent upload +4 · Different category',score=4),
+    dict(id='game',title='Building a town worth slowing down for',creator='Strategy Corner',category='Gaming',kind='grid',duration='16:54',age='2 days ago',group='Earlier this week',reason='Something you saved for later',detail='Saved +2 · Recent upload +4',score=6),
+    dict(id='weather',title='Reading the shape of a changing sky',creator='Weather Window',category='Weather',kind='coast',duration='9:24',age='2 days ago',group='Earlier this week',reason='Recent upload',detail='Recent upload +4',score=4),
+    dict(id='wing',title='Why a wing bends more than you think',creator='Flight Deck Notes',category='Aviation',kind='flight',duration='12:07',age='3 days ago',group='Earlier this week',reason='Aviation focus',detail='Category focus +6',score=6),
+    dict(id='backup',title='A small backup routine you can trust',creator='The Quiet Terminal',category='Linux',kind='terminal',duration='8:50',age='4 days ago',group='Earlier this week',reason='Favourite creator',detail='Favourite +8',score=8),
+    dict(id='tools',title='What a local model can actually do',creator='Model Notebook',category='AI',kind='nodes',duration='20:18',age='5 days ago',group='Earlier this week',reason='Previously saved',detail='Saved +2',score=2),
+]

@@ -1,0 +1,26 @@
+name: Bug report
+description: Something did not work as expected.
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include API keys, private launch links, Takeout files, databases, raw logs or private viewing history. Use Security for sensitive reports."
+  - type: textarea
+    id: setup
+    attributes:
+      label: Your setup
+      description: SignalTube release, Linux/Omarchy version, browser and Python version.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Use a synthetic example where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behaviour
+    validations:
+      required: true

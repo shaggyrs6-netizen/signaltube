@@ -1,0 +1,13 @@
+.venv/
+.cache/
+.pytest_cache/
+__pycache__/
+var/*
+!var/.gitkeep
+# Release candidates and common accidental credentials
+/dist/
+.env
+.env.*
+*.key
+*.sqlite3
+*.sqlite3-*

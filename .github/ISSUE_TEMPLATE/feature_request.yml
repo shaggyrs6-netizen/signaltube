@@ -1,0 +1,14 @@
+name: Feature suggestion
+description: Describe a problem and a useful improvement.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Keep local operation, explicit user choices and quota limits in mind.
