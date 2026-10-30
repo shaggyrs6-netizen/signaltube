@@ -1,6 +1,8 @@
 # Local data and recovery
 
-Run commands from the extracted/cloned SignalTube folder.
+For the desktop edition, Quit from the tray before backup or removal. Follow [desktop installation/removal](DESKTOP-PACKAGING.md). The stores below are relative to its data folder (`~/.local/share/signaltube` by default, or the explicitly chosen folder). In the source/browser edition they are under `var/`.
+
+The following `run.sh` commands apply to the source/browser edition, from its extracted/cloned folder.
 
 - `./run.sh` starts/reuses the loopback server and opens a private unlock link. Re-run it if the page is locked. `./run.sh launch --no-open` prints the link for a different browser.
 - `./run.sh status` checks the matching server; `./run.sh stop` stops it. Closing a browser does not stop collection because there is no automatic collection in the first place. The on-demand server remains available until stopped or the computer shuts down.
@@ -23,4 +25,4 @@ Stop the app before making a deliberate private backup of personal/import stores
 
 Removing a creator from tracking hides its cached videos but retains local choices. Expired cache details disappear while saved fingerprints remain. Undo restores the previous local choice; it never restores expired API metadata or changes your YouTube account. A later action on that video invalidates stale Undo.
 
-To uninstall, stop the app, decide which personal files to retain privately, then remove the chosen project folder yourself. No system package, login autostart or desktop configuration is installed by SignalTube. Removing local files does not change your Google project, key or actual YouTube account.
+For the source/browser edition only: to uninstall, stop the app, decide which personal files to retain privately, then remove the chosen project folder yourself. That source/browser path does not install desktop configuration. The desktop installer has a separate receipt-based uninstall command. Removing local files does not change your Google project, key or actual YouTube account.

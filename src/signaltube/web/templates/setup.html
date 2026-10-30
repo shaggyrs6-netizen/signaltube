@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SignalTube · Google API setup &amp; costs</title><link rel="stylesheet" href="/static/app.css"><link id="theme-palette" rel="stylesheet" href="/theme.css"><script src="/static/theme.js" defer></script></head>
+<body><main><a href="/watch">← Back to your library</a>
+<h1>Connect to YouTube, without a paid service.</h1>
+<p>SignalTube is designed to run within Google’s free daily YouTube API quota. You create your own key, keep it on your computer, and decide when to refresh.</p>
+<h2>What is the key for?</h2>
+<p>An API key identifies your Google project when SignalTube requests public channel details and recent uploads. It is not your Google password. SignalTube does not sign into your YouTube account, upload your watch history or change your subscriptions.</p>
+<h2>Why should this cost nothing?</h2>
+<p>Google currently provides a default allowance of <strong>10,000 units per day</strong> for the ordinary API methods SignalTube uses. SignalTube sets a much smaller <strong>100-unit daily cap</strong> of its own. Units measure API requests, not money or videos.</p>
+<p>For example, refreshing 10 channels uses up to 20 units the first time, then usually 10 while their channel details are cached. The app shows the estimated cost before you refresh. Google’s quotas reset at midnight Pacific Time.</p>
+<p><strong>At the limit, SignalTube stops refreshing. It does not buy more quota or enable billing.</strong> Your cached library remains available until its normal data expiry. Opening the app, leaving it in the tray, building a shortlist and saving videos do not call YouTube. Playing a video opens YouTube in your usual browser.</p>
+<p>No payment card, Google Cloud free-credit trial, hosting plan or paid AI subscription is part of this setup. Other services you enable and other apps sharing your project are separate. Check your own project’s quota and Google’s current terms. If a setup screen asks you to activate billing, stop and check rather than agreeing.</p>
+<h2>Set up your key</h2>
+<ol>
+<li><p><strong>Create a project.</strong> Open <a href="https://console.cloud.google.com/" target="_blank" rel="noreferrer">Google Cloud Console</a>, sign in and create a dedicated project called SignalTube. Make sure it is selected.</p></li>
+<li><p><strong>Enable YouTube Data API v3.</strong> Under APIs &amp; Services → Library, find and enable that exact API. You do not need YouTube Analytics, Gemini, OAuth or a service account.</p></li>
+<li><p><strong>Create an API key.</strong> Open APIs &amp; Services → Credentials → Create credentials → API key. If asked what data you need, choose Public data.</p></li>
+<li><p><strong>Restrict the key.</strong> Under API restrictions, select Restrict key → YouTube Data API v3, then save. This limits which API can use the key.</p><p>The caller is your local Python app, so website/referrer restrictions will not work. An IP restriction needs your stable public internet address—not 127.0.0.1 or a home-network address. If that is impractical, leave application restrictions unset for the local trial, keep the API restriction, and keep your key private.</p></li>
+<li><p><strong>Check the daily limit.</strong> Under YouTube Data API v3 → Quotas &amp; System Limits, find Queries per day. If editable, lower it to 100 for this dedicated project and verify it saved. If that option is unavailable, SignalTube still enforces its own cap. Do not create extra projects to evade quotas.</p></li>
+<li><p><strong>Add the key to SignalTube.</strong> Right-click its tray icon → Set YouTube API key… and paste into the masked box. In the browser/source edition, run <code>./run.sh key-add</code> instead. Saving the key does not make a request.</p></li>
+<li><p><strong>Refresh when ready.</strong> Return to your library, check the estimated units, and click Refresh from YouTube. This is when SignalTube contacts Google.</p></li>
+</ol>
+<h2>Keep control of your usage and key</h2>
+<p>The app shows its reserved units beside Refresh. Google Console shows the project’s usage; reporting delays and reserved failed requests can make them differ. Keep one active installation and its quota history. Don’t delete the ledger to reset the allowance or independently refresh multiple copies with the same project.</p>
+<p>Your key is stored in an owner-only local file, not in the web page. Keep it out of screenshots, chat, GitHub and URLs. Existing keys are never silently replaced. If exposed, revoke it in Google Console before deliberately replacing the local key; keep your quota history.</p>
+<details><summary>Troubleshooting</summary><p>If the key is rejected, check the selected project, API enablement and restrictions. If the daily limit or cooldown is reached, wait until the time shown in the app. No automatic refresh or retry happens in the background.</p></details>
+<h2>Official references</h2>
+<p>Checked 30 October 2026. Google can change its screens and allocations; your Console project is authoritative.</p>
+<ul><li><a href="https://developers.google.com/youtube/data/getting-started" target="_blank" rel="noreferrer">YouTube API overview and quota</a></li><li><a href="https://developers.google.com/youtube/data/determine_quota_cost" target="_blank" rel="noreferrer">Google’s method costs and reset time</a></li><li><a href="https://developers.google.com/youtube/registering_an_application" target="_blank" rel="noreferrer">Creating credentials</a></li><li><a href="https://docs.cloud.google.com/api-keys/docs/add-restrictions-api-keys" target="_blank" rel="noreferrer">Restricting your key</a></li></ul>
+</main></body></html>

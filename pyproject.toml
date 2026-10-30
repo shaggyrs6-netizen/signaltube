@@ -1,6 +1,6 @@
 [project]
 name = "signaltube"
-version = "0.4.0b1"
+version = "0.5.0b1"
 description = "Local-first YouTube organiser with explainable picks and a catch-up queue"
 license = "MIT"
 readme = "README.md"
@@ -15,3 +15,17 @@ testpaths = ["tests"]
 [project.urls]
 Repository = "https://github.com/shaggyrs6-netizen/signaltube"
 Issues = "https://github.com/shaggyrs6-netizen/signaltube/issues"
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+desktop = ["PySide6==6.10.2"]
+
+[project.scripts]
+signaltube = "signaltube.cli:main"
+signaltube-desktop = "signaltube.desktop:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/signaltube"]

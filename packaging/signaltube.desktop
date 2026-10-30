@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=SignalTube
+Comment=Less looking. More watching.
+Exec=signaltube-desktop
+Icon=signaltube
+Terminal=false
+Categories=AudioVideo;Video;
+Keywords=YouTube;Watch;Queue;
+StartupNotify=true

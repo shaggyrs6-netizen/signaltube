@@ -14,7 +14,8 @@ from pathlib import Path
 from .importers import channel_id, utc_time
 from urllib.parse import urlsplit, parse_qs
 
-ROOT=Path(__file__).resolve().parents[2]/'var'/'takeout'
+from .paths import STATE
+ROOT=STATE/'takeout'
 LIMIT=256*1024*1024
 RECORD_LIMIT=1024*1024
 SCHEMA=[

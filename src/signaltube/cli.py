@@ -9,12 +9,12 @@ from .storage import initialise
 from .importers import import_file
 from .webapp import create_app, load_demo, ROOT
 from .live import store_key, refresh, LiveError
-from . import takeout, launcher
+from . import takeout, launcher, live
 
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description='SignalTube — local library and bounded public API trial')
-    parser.add_argument('--db',type=Path,default=ROOT/'var'/'signaltube.sqlite3')
+    parser.add_argument('--db',type=Path,default=live.STATE/'signaltube.sqlite3')
     sub = parser.add_subparsers(dest='command',required=True)
     sub.add_parser('demo',help='Import the bundled synthetic fixtures (safe to repeat)')
     sub.add_parser('key-add',help='Save an API key using a hidden local terminal prompt; no network request')

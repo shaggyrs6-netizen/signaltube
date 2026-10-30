@@ -1,5 +1,7 @@
 # SignalTube
 
+> **New: v0.5.0-beta.1 desktop beta.** Own window, tray icon, app-menu installer and built-in Google API setup guide. [Download the desktop bundle](https://github.com/shaggyrs6-netizen/signaltube/releases/tag/v0.5.0-beta.1) · [Installation and existing-library instructions](DESKTOP-PACKAGING.md).
+
 ![SignalTube — Less looking. More watching.](assets/signaltube-cover.png)
 
 **Public beta · Linux / Omarchy · MIT licence · Bring your own Google API key**
@@ -10,7 +12,7 @@ A calmer, local-first YouTube organiser for Linux, with Omarchy theme support.
 
 **Watch next** keeps a manually built, explainable shortlist. **Catch up** shows cached uploads you have not reviewed in SignalTube. **Saved** is your deliberate queue. Save, Watched, Dismiss and one-step Undo are local choices, not changes to your YouTube account.
 
-No cloud AI, embedded player, remote thumbnails, analytics, automatic watch tracking or background YouTube polling. Video links open YouTube in your browser. Category illustrations are local artwork, not video thumbnails. Local-model integration is deferred.
+No cloud AI, embedded video player, remote thumbnails, analytics, automatic watch tracking or background YouTube polling. Video links open YouTube in your browser. Category illustrations are local artwork, not video thumbnails. Local-model integration is deferred.
 
 ## Choose your setup
 
@@ -20,9 +22,9 @@ No cloud AI, embedded player, remote thumbnails, analytics, automatic watch trac
 | Use public channel uploads | Your own key | Manual collection, Watch next, Catch up, Saved and creator organisation |
 | Add your Takeout history | Optional for import; needed for live uploads | Local history counts for ranking and an imported subscription list to choose from |
 
-See [the small-group tester guide](TESTING.md) for the short installation and feedback checklist. **No app-menu icon is installed in this candidate**; launch is currently via the folder’s `run.sh` command.
+See [the small-group tester guide](TESTING.md) for the short installation and feedback checklist. The desktop bundle installs an app-menu entry. The source/browser edition remains available through `run.sh`.
 
-## Install locally
+## Source/browser installation
 
 Supported target: Linux (tested on Omarchy), Python 3.12 or newer. The launcher and file locks use Unix facilities; Windows is not currently supported. Omarchy is optional: another Linux desktop gets a readable fallback palette. You need `uv` installed through its official instructions at https://docs.astral.sh/uv/getting-started/installation/ or your distribution. Installing Python dependencies requires an Internet connection; using already-cached data does not.
 

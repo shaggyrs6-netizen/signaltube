@@ -17,7 +17,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[2]
-STATE = ROOT / 'var'
+from .paths import STATE
 PACIFIC = ZoneInfo('America/Los_Angeles')
 CAP = 100
 TTL = 30 * 86400

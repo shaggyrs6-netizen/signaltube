@@ -10,7 +10,7 @@ Use the bug report template and include your Linux/Omarchy version, browser, Pyt
 
 ## Suggest a change
 
-Explain the problem you run into and the smallest useful improvement. The current boundaries are local-first operation, manual generation/refresh, a 100-unit daily cap, explicit user choices and Omarchy-compatible themes. Model integration, automatic polling and an app-menu installer are not part of this beta.
+Explain the problem you run into and the smallest useful improvement. The current boundaries are local-first operation, manual generation/refresh, a 100-unit daily cap, explicit user choices and Omarchy-compatible themes. Model integration and automatic polling are not part of this beta. Desktop packaging is included; changes must preserve local data and explicit refresh controls.
 
 ## Develop and test
 

@@ -1,6 +1,16 @@
 # Your Google API key and free quota
 
-Documentation checked 29 October 2026. Google can change labels/allocations; the actual limits in your own Console project are authoritative.
+Documentation checked 30 October 2026. Google can change labels/allocations; the actual limits in your own Console project are authoritative.
+
+## In plain English
+
+SignalTube is designed to run within Google's free daily YouTube API quota. Your API key lets it ask YouTube for public channel details and recent uploads; it is not your Google password and does not give SignalTube access to your private YouTube account.
+
+The app makes those requests only when you choose **Refresh from YouTube**. It caps its own usage at 100 units a day and stops before a refresh would exceed that budget. It does not purchase extra quota or turn on billing. Watching videos in your browser, browsing your cached library, saving items and building a shortlist do not use SignalTube API quota.
+
+No card, Cloud free-credit trial, paid hosting or paid AI subscription is part of this setup. Your project's actual quota and Google's current terms remain authoritative; other services you enable or other apps using the same project are separate. If Google asks you to activate billing, stop rather than enabling it to get through the guide.
+
+In the desktop app, open **Google API setup & costs** from the tray or the library sidebar. The guide is bundled locally; only the Google links require internet access.
 
 ## How much usage do I get?
 
@@ -28,7 +38,7 @@ No Cloud hosting, Google Cloud free-credit trial, payment card or paid AI servic
 4. Select **Restrict key**. Under **API restrictions**, restrict it to **YouTube Data API v3**, then save.
 5. Application restrictions: the caller is the local Python server. Website/HTTP-referrer restrictions are inappropriate. A known stable **public outbound IP address** can be restricted under server/IP restrictions; do not enter `127.0.0.1` or a LAN address. VPNs, IPv6 and changing home IPs can affect matching. If you cannot maintain that restriction, a local trial can use no application restriction while retaining the API-only restriction—keep the key secret. [Google restriction guidance](https://docs.cloud.google.com/api-keys/docs/add-restrictions-api-keys)
 6. Under **YouTube Data API v3 → Quotas & System Limits**, find **Queries per day**, not Search Queries per day. Lower its editable limit to **100** for this dedicated project and save. Confirm the saved value. If unavailable, SignalTube still enforces its own 100-unit cap; do not claim the Google-side cap was changed.
-7. In SignalTube's folder, run `./run.sh key-add` and paste at the hidden terminal prompt. It stores the key in `var/secrets/youtube.key`, owner-only, without making any request. It refuses silent key replacement.
+7. **Desktop app:** right-click the SignalTube tray icon → **Set YouTube API key…**, paste the key into the masked field and confirm. **Browser/source edition:** run `./run.sh key-add` from its folder. Saving makes no API request and refuses to silently replace an existing key. The key is owner-only under the app's data folder: normally `~/.local/share/signaltube/secrets/youtube.key` for the desktop package, or `var/secrets/youtube.key` for the source edition. A configured data-folder override changes this location.
 8. Open Watch next, check the estimated next-refresh cost and explicitly click **Refresh from YouTube**. This is the first step that calls the API.
 
 ## Compare usage

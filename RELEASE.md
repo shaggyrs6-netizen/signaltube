@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.5.0-beta.1 — 30 October 2026
+
+Desktop beta: own window, tray, app-menu installer, optional login startup and built-in Google API setup/costs guide. Download `signaltube-desktop-0.5.0-beta.1-linux.tar.gz` and read [desktop installation](DESKTOP-PACKAGING.md), [changelog](CHANGELOG.md) and [tester checklist](TESTING.md). Existing users should reuse their data folder; no automatic migration or updater is included. This is a prerelease for feedback, not a universal Linux compatibility claim.
+
 ## v0.4.0-beta.1 — 29 October 2026
 
 First public test release under MIT.

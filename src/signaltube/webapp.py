@@ -22,11 +22,11 @@ STATES = ['unreviewed', 'reviewed', 'saved', 'dismissed', 'marked watched']
 def load_demo(path):
     reports = []
     for kind, filename in [('subscriptions','subscriptions.csv'),('history','watch-history.json')]:
-        reports.append(import_file(ROOT/'tests'/'fixtures'/filename, path, kind))
+        reports.append(import_file(Path(__file__).parent/'demo'/filename, path, kind))
     return reports
 
 def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=None, takeout_root=None):
-    db_path = Path(db_path or ROOT/'var'/'signaltube.sqlite3')
+    db_path = Path(db_path or live.STATE/'signaltube.sqlite3')
     takeout_root=Path(takeout_root) if takeout_root is not None else takeout.ROOT
     if db_path.resolve().is_relative_to(takeout_root.resolve()):
         raise ValueError('Real Takeout databases cannot be used as the synthetic demo database.')
@@ -142,6 +142,10 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
         except live.LiveError as exc:
             return live_page(request,message=str(exc))
         return RedirectResponse('/live',status_code=303)
+
+    @app.get('/setup',response_class=HTMLResponse)
+    def setup(request: Request):
+        return templates.TemplateResponse(request=request,name='setup.html',context={})
 
     @app.get('/privacy',response_class=HTMLResponse)
     def privacy(request: Request):
