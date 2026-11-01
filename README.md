@@ -1,6 +1,6 @@
 # SignalTube
 
-> **Next candidate: v0.6.0-beta.1 (not yet published).** First-use improvements, direct channel setup and optional images. The current published desktop release is **v0.5.0-beta.1**. Own window, tray icon, app-menu installer and built-in Google API setup guide. [Download the desktop bundle](https://github.com/shaggyrs6-netizen/signaltube/releases/tag/v0.5.0-beta.1) · [Installation and existing-library instructions](DESKTOP-PACKAGING.md).
+> **v0.6.0-beta.1 — thumbnails and easier setup.** Optional YouTube images, direct channel setup and clearer Saved behaviour. [Download the desktop beta](https://github.com/shaggyrs6-netizen/signaltube/releases/tag/v0.6.0-beta.1) · [Install or upgrade](DESKTOP-PACKAGING.md) · [What changed](CHANGELOG.md).
 
 ![SignalTube — Less looking. More watching.](assets/signaltube-cover.png)
 
@@ -13,6 +13,12 @@ A calmer, local-first YouTube organiser for Linux, with Omarchy theme support.
 **Watch next** keeps a manually built, explainable shortlist. **Catch up** shows cached uploads you have not reviewed in SignalTube. **Saved** is your deliberate queue. Save, Watched, Dismiss and one-step Undo are local choices, not changes to your YouTube account.
 
 No cloud AI, embedded player, analytics, automatic watch tracking or background YouTube polling. Video links open YouTube in your browser. Local artwork is the default; you can opt into channel avatars or video thumbnails under Images. Local-model integration is deferred.
+
+## Catch up with real video thumbnails
+
+![SignalTube Catch up showing optional YouTube thumbnails and local Save, Watched and Dismiss controls](assets/signaltube-thumbnails.png)
+
+Actual desktop screenshot, 1 November 2026, published with the owner's permission. Local artwork remains the default; choose **Images → Channel avatars + video thumbnails** to enable images. Video artwork and titles belong to their respective creators. The screenshot shows cached uploads, not a claim that these videos were watched.
 
 ## Choose your setup
 

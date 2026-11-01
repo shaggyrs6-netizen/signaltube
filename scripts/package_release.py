@@ -1,6 +1,7 @@
 """Bundle only reviewed public installer assets; run after uv build."""
 from pathlib import Path
 import argparse
+import shutil
 import hashlib
 import tarfile
 import tomllib
@@ -26,8 +27,11 @@ for name in ['README.md','DESKTOP-PACKAGING.md','API-SETUP.md','TESTING.md','REC
     files[root/name]=name
 if (root/'BETA-ACCEPTANCE.md').exists():files[root/'BETA-ACCEPTANCE.md']='BETA-ACCEPTANCE.md'
 files[root/'assets/signaltube-cover.png']='assets/signaltube-cover.png'
+files[root/'assets/signaltube-thumbnails.png']='assets/signaltube-thumbnails.png'
 with tarfile.open(bundle,'w:gz') as archive:
     for source,name in files.items(): archive.add(source,arcname=f'{folder}/{name}')
-assets=[bundle,wheel,out/f'signaltube-{version}.tar.gz']
+screenshot=out/'signaltube-thumbnails.png'
+shutil.copyfile(root/'assets/signaltube-thumbnails.png',screenshot)
+assets=[bundle,wheel,out/f'signaltube-{version}.tar.gz',screenshot]
 (out/'SHA256SUMS').write_text(''.join(f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n' for p in assets))
 print('\n'.join(str(p) for p in assets))

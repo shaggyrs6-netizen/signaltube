@@ -1,8 +1,8 @@
 # Install the SignalTube desktop beta
 
-**v0.6.0-beta.1 local candidate · Linux · Python 3.12+ · MIT**
+**v0.6.0-beta.1 · Linux · Python 3.12+ · MIT**
 
-This candidate is not yet published. Use the prepared local candidate bundle for developer testing. The last published release is v0.5.0-beta.1; the following named download applies once this candidate is released.
+This beta adds easier first use, direct channel setup and optional YouTube thumbnails. Existing libraries and quota ledgers must stay together when upgrading.
 
 The desktop edition has its own window, an app-menu entry and a tray icon. Closing the window keeps it in the tray; **Quit SignalTube** stops its local server. If no tray host is available, closing quits instead. Opening a second copy restores the existing window. YouTube videos open in your normal browser.
 
@@ -11,7 +11,7 @@ Background operation does **not** mean automatic refreshes. Refresh and shortlis
 ## New installation
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) using its official instructions or your distribution. Have Python 3.12 or newer available.
-2. From the [release page](https://github.com/shaggyrs6-netizen/signaltube/releases), download **signaltube-desktop-0.6.0-beta.1-linux.tar.gz** and **SHA256SUMS**. The other source archives are for developers/browser-edition users.
+2. From the [release page](https://github.com/shaggyrs6-netizen/signaltube/releases/tag/v0.6.0-beta.1), download **signaltube-desktop-0.6.0-beta.1-linux.tar.gz** and **SHA256SUMS**. The other source archives are for developers/browser-edition users.
 3. Check the downloaded archive against its entry in SHA256SUMS, then extract it. In the extracted folder run:
 
 ```sh

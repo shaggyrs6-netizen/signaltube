@@ -1,6 +1,6 @@
 # SignalTube desktop beta — tester guide
 
-Test plan for **v0.6.0-beta.1**, currently an unpublished local candidate. The desktop edition includes its own window, tray and installer. The original browser edition remains available.
+Test plan for **v0.6.0-beta.1**. The desktop edition includes its own window, tray and installer. The original browser edition remains available.
 
 ## Get started
 
@@ -42,3 +42,5 @@ Use the repository's Issues tab. Include version **0.6.0-beta.1**, Linux/Omarchy
 This beta is tested on one Omarchy workstation, not every Linux distribution. Real login-startup, clean-machine installation and external-browser handoff need wider tester coverage. Qt may print graphics-fallback or desktop-portal warnings; record the visible symptom rather than assuming every warning is a crash. Installation requires internet and a substantial Qt download. No automatic updater or native OS package is included.
 
 Collection remains bounded to 50 recent uploads per tracked creator per refresh, with 30-day metadata retention. Catch up means unreviewed in SignalTube, not necessarily unwatched on YouTube. Remote avatars and thumbnails are opt-in; local artwork is the default. No automatic watch detection, models or background polling. The 100-unit app cap is independent of Google's default allowance. Other software using the same Google project is outside SignalTube's ledger.
+
+Live video thumbnails passed a five-image check on the maintainer’s Omarchy machine. Avatars remain a separate live-verification item; older channel caches may need a later explicit channel lookup before avatar URLs exist. No automatic backfill is performed.

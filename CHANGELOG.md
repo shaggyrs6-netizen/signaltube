@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0-beta.1 — local candidate, 1 November 2026
+## 0.6.0-beta.1 — 1 November 2026
 
 - Demo-first onboarding with accurate setup steps and neutral profile defaults; existing preferences retained.
 - Direct channel URL/@handle lookup, identity confirmation and quota preview, using the shared 100-unit ledger. No automatic tracking or refresh.
@@ -10,7 +10,7 @@
 - Optional channel avatars/video thumbnails through a bounded local image cache; local artwork remains the default and fallback.
 - Corrected desktop/browser installation guidance and privacy explanation.
 
-No model, background collection, duration filter or automatic saved-video refresh. Not published or installed over an existing user copy.
+No model, background collection, duration filter or automatic saved-video refresh. Installed against an existing library with database/ledger preservation verified; one authorised 13-channel live refresh and five real thumbnail loads passed. Avatar live verification remains pending.
 
 
 ## 0.5.0-beta.1 — 30 October 2026
