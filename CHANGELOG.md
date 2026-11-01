@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0-beta.1 — local candidate, 1 November 2026
+
+- Demo-first onboarding with accurate setup steps and neutral profile defaults; existing preferences retained.
+- Direct channel URL/@handle lookup, identity confirmation and quota preview, using the shared 100-unit ledger. No automatic tracking or refresh.
+- Persistent Manage library navigation, larger labels and responsive layouts; scoring details are optional.
+- Explicit unavailable Saved entries with remove/Undo, without retaining expired API titles or links.
+- At-a-glance recent channel coverage, disabled cooldown refresh and submission progress.
+- Optional channel avatars/video thumbnails through a bounded local image cache; local artwork remains the default and fallback.
+- Corrected desktop/browser installation guidance and privacy explanation.
+
+No model, background collection, duration filter or automatic saved-video refresh. Not published or installed over an existing user copy.
+
+
 ## 0.5.0-beta.1 — 30 October 2026
 
 ### Added

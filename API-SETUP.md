@@ -53,3 +53,10 @@ Console's **Queries per day** row shows the saved limit, current usage and perce
 - A Google key never belongs in browser URLs, Git, setup scripts or screenshots. The app's **local launch token** is another credential and should also remain private.
 
 Further reference: [Google's getting-started guide](https://developers.google.com/youtube/data/getting-started), [API-key best practices](https://docs.cloud.google.com/docs/authentication/api-keys-best-practices).
+
+
+## Direct channel lookup and optional images (0.6 candidate)
+
+In Manage library → Channels & quota, paste an @handle or channel URL and choose Look up channel. Each lookup reserves 1 unit from the same 100-unit daily ledger before sending the request; failed requests retain their reservation. Confirm the returned identity and refresh estimate to track it. Applying and cancelling do not collect videos. Existing request cooldowns also apply to lookups.
+
+Channel and upload responses already include image URLs. Opting into avatars/thumbnails does not add API requests per displayed image. Image files use bandwidth and contact Google’s image servers through the local app; they carry no API key, user cookies or imported history. Local artwork remains the default. Existing channels missing avatar URLs can be looked up manually later (1 unit); no hidden backfill runs.

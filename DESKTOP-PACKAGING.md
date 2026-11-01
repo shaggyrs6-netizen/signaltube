@@ -1,6 +1,8 @@
 # Install the SignalTube desktop beta
 
-**v0.5.0-beta.1 · Linux · Python 3.12+ · MIT**
+**v0.6.0-beta.1 local candidate · Linux · Python 3.12+ · MIT**
+
+This candidate is not yet published. Use the prepared local candidate bundle for developer testing. The last published release is v0.5.0-beta.1; the following named download applies once this candidate is released.
 
 The desktop edition has its own window, an app-menu entry and a tray icon. Closing the window keeps it in the tray; **Quit SignalTube** stops its local server. If no tray host is available, closing quits instead. Opening a second copy restores the existing window. YouTube videos open in your normal browser.
 
@@ -9,11 +11,11 @@ Background operation does **not** mean automatic refreshes. Refresh and shortlis
 ## New installation
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) using its official instructions or your distribution. Have Python 3.12 or newer available.
-2. From the [release page](https://github.com/shaggyrs6-netizen/signaltube/releases/tag/v0.5.0-beta.1), download **signaltube-desktop-0.5.0-beta.1-linux.tar.gz** and **SHA256SUMS**. The other source archives are for developers/browser-edition users.
+2. From the [release page](https://github.com/shaggyrs6-netizen/signaltube/releases), download **signaltube-desktop-0.6.0-beta.1-linux.tar.gz** and **SHA256SUMS**. The other source archives are for developers/browser-edition users.
 3. Check the downloaded archive against its entry in SHA256SUMS, then extract it. In the extracted folder run:
 
 ```sh
-python3 install.py signaltube-0.5.0b1-py3-none-any.whl
+python3 install.py signaltube-0.6.0b1-py3-none-any.whl
 ```
 
 4. Open **SignalTube** from your app menu. No API key is required to open the empty library. Use **Google API setup and costs** in the tray, or the guide link in the app, when ready for public YouTube uploads.
@@ -23,7 +25,7 @@ No sudo is needed. Installation downloads Python dependencies, including approxi
 Optional login startup is an explicit installation choice:
 
 ```sh
-python3 install.py signaltube-0.5.0b1-py3-none-any.whl --autostart
+python3 install.py signaltube-0.6.0b1-py3-none-any.whl --autostart
 ```
 
 Choose one install command. Login startup opens in the tray when a tray host exists; otherwise it shows the window. Login startup is off by default and has not yet been tested across a real login.
@@ -43,7 +45,7 @@ chmod 700 /absolute/path/to/your/signaltube/var
 4. Install with that existing folder:
 
 ```sh
-python3 install.py signaltube-0.5.0b1-py3-none-any.whl --data-dir /absolute/path/to/your/signaltube/var
+python3 install.py signaltube-0.6.0b1-py3-none-any.whl --data-dir /absolute/path/to/your/signaltube/var
 ```
 
 This points the menu entry at the same data; it does not move or copy it. Keep the original directory in place. Do not refresh two independent copies using the same Google project. Installed CLI commands need the same `SIGNALTUBE_DATA_DIR` environment variable when using a custom folder.

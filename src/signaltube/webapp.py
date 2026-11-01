@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from .storage import initialise, connect, CATEGORIES
 from .importers import import_file
 from .ranking import snapshot
-from . import live, theme, library, history, takeout, subscriptions, shortlist, prototype, dashboard
+from . import live, theme, library, history, takeout, subscriptions, shortlist, prototype, dashboard, images
 
 ROOT = Path(__file__).resolve().parents[2]
 STATES = ['unreviewed', 'reviewed', 'saved', 'dismissed', 'marked watched']
@@ -127,7 +127,7 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
     @app.get('/creators',response_class=HTMLResponse)
     def creators(request: Request,notice:str=''):
         data=library.library_data(live_state)
-        return templates.TemplateResponse(request=request,name='creators.html',context={**data,'csrf':token,'notice':'Creator choices saved locally.' if notice=='saved' else ''})
+        return templates.TemplateResponse(request=request,name='creators.html',context={**data,'image_mode':images.mode(live_state),'csrf':token,'notice':'Creator choices saved locally.' if notice=='saved' else ''})
 
     @app.post('/creators/save')
     async def creator_save(request: Request):
@@ -156,7 +156,8 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
         return templates.TemplateResponse(request=request,name='history.html',context=history.report(db_path))
 
     @app.get('/takeout',response_class=HTMLResponse)
-    def real_history(request: Request,profile:str='lee',page:int=1):
+    def real_history(request: Request,profile:str='',page:int=1):
+        profile=profile or shortlist.options_load(live_state,[],takeout_root)[0]['profile']
         data=takeout.overview(profile,takeout_root)
         page=max(1,page)
         total=len(data['creators']) if data else 0
@@ -167,11 +168,12 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
     @app.get('/watch',response_class=HTMLResponse)
     def watch(request: Request,view:str='watch',category:str='',query:str='',page:int=1,notice:str=''):
         data=dashboard.page(live_state,takeout_root,view,category,query,page)
-        notices={'choice':'Choice saved locally. No YouTube request.','undo':'Previous choice restored.',
+        notices={'choice':'Choice saved locally. No YouTube request. Saved choices persist, but titles and links can expire after 30 days without metadata refresh.','undo':'Previous choice restored.',
                  'built':'Shortlist built from your local cache. No YouTube refresh.',
                  'options':'Options saved. Your shortlist order is unchanged.',
+                 'images':'Image preference saved. Local choices remain on this computer.',
                  'refresh':'Manual refresh finished. Build again when you want a new shortlist.'}
-        return templates.TemplateResponse(request=request,name='dashboard.html',context={**data,'csrf':token,'notice':notices.get(notice,'')})
+        return templates.TemplateResponse(request=request,name='dashboard.html',context={**data,'csrf':token,'notice':notices.get(notice,''),'refresh_finished':notice=='refresh'})
 
     def watch_return(f,notice):
         view=f.get('view','watch')
@@ -181,14 +183,14 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
     @app.post('/watch/build')
     async def watch_build(request: Request):
         f=await form(request)
-        options=dict(profile=f.get('profile','lee'),category=f.get('category',''),use_history=f.get('use_history')=='1',exclude_history=f.get('exclude_history')=='1')
+        options=dict(profile=f.get('profile','local'),category=f.get('category',''),use_history=f.get('use_history')=='1',exclude_history=f.get('exclude_history')=='1')
         await run_in_threadpool(dashboard.build_plan,live_state,takeout_root,options)
         return RedirectResponse('/watch?notice=built',status_code=303)
 
     @app.post('/watch/options')
     async def watch_options(request: Request):
         f=await form(request);_,_,_,cats=shortlist.context(live_state)
-        shortlist.options_save(live_state,takeout_root,f.get('profile','lee'),f.get('category',''),f.get('use_history')=='1',f.get('exclude_history')=='1',cats)
+        shortlist.options_save(live_state,takeout_root,f.get('profile','local'),f.get('category',''),f.get('use_history')=='1',f.get('exclude_history')=='1',cats)
         return RedirectResponse('/watch?notice=options',status_code=303)
 
     @app.post('/watch/action')
@@ -212,6 +214,41 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
             return templates.TemplateResponse(request=request,name='dashboard.html',context={**data,'csrf':token,'notice':str(exc)})
         return RedirectResponse('/watch?notice=refresh',status_code=303)
 
+    @app.post('/watch/images')
+    async def image_settings(request: Request):
+        f=await form(request)
+        images.save_mode(live_state,f.get('images','local'))
+        return RedirectResponse(watch_return(f,'images'),status_code=303)
+
+    @app.get('/images/{kind}/{resource}')
+    def image_file(kind:str,resource:str):
+        try: result=images.get(live_state,kind,resource)
+        except (OSError,ValueError): result=None
+        if not result:return Response(status_code=404)
+        body,mime=result
+        return Response(body,media_type=mime)
+
+    @app.post('/watch/unavailable')
+    async def unavailable_choice(request: Request):
+        f=await form(request)
+        dashboard.remove_unavailable(live_state,takeout_root,f.get('fingerprint',''))
+        return RedirectResponse('/watch?view=saved&notice=choice',status_code=303)
+
+    @app.post('/subscriptions/resolve',response_class=HTMLResponse)
+    async def resolve_channel(request: Request):
+        f=await form(request)
+        profile=f.get('profile','local')
+        takeout.profile_path(profile,takeout_root)
+        try:
+            key=await run_in_threadpool(subscriptions.resolve,live_state,f.get('channel',''))
+            if key in {k for k,_,_ in live.current_channels(live_state)}:
+                return RedirectResponse('/subscriptions?show=tracked',status_code=303)
+            plan=subscriptions.preview(live_state,profile,takeout_root,key,'add')
+        except (live.LiveError,ValueError) as exc:
+            return templates.TemplateResponse(request=request,name='channel_error.html',context={'message':str(exc)})
+        signature=hmac.new(token.encode(),plan['revision'].encode(),'sha256').hexdigest()
+        return templates.TemplateResponse(request=request,name='subscriptions.html',context=dict(plan=plan,signature=signature,csrf=token,profile=profile))
+
     @app.get('/preview',response_class=HTMLResponse)
     def design_preview(request: Request):
         return templates.TemplateResponse(request=request,name='prototype.html',context={
@@ -220,7 +257,7 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
     @app.get('/shortlist',response_class=HTMLResponse)
     def shortlist_page(request: Request,saved:bool=False):
         _,_,_,categories=shortlist.context(live_state)
-        options,notice=shortlist.options_load(live_state,categories)
+        options,notice=shortlist.options_load(live_state,categories,takeout_root)
         if saved:notice='Options saved locally. Nothing generated or refreshed. '+notice
         return templates.TemplateResponse(request=request,name='shortlist.html',context=dict(
             csrf=token,categories=categories,result=None,notice=notice,**options))
@@ -229,14 +266,14 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
     async def shortlist_options(request: Request):
         f=await form(request)
         _,_,_,categories=shortlist.context(live_state)
-        shortlist.options_save(live_state,takeout_root,f.get('profile','lee'),f.get('category',''),
+        shortlist.options_save(live_state,takeout_root,f.get('profile','local'),f.get('category',''),
                                f.get('use_history')=='1',f.get('exclude_history')=='1',categories)
         return RedirectResponse('/shortlist?saved=true',status_code=303)
 
     @app.post('/shortlist/build',response_class=HTMLResponse)
     async def shortlist_build(request: Request):
         f=await form(request)
-        profile=f.get('profile','lee');category=f.get('category','')
+        profile=f.get('profile','local');category=f.get('category','')
         use_history=f.get('use_history')=='1';exclude_history=f.get('exclude_history')=='1'
         result=await run_in_threadpool(shortlist.build,live_state,takeout_root,profile,category,use_history,exclude_history)
         shortlist.options_save(live_state,takeout_root,profile,category,use_history,exclude_history,result['categories'])
@@ -245,7 +282,8 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
             use_history=use_history,exclude_history=exclude_history))
 
     @app.get('/subscriptions',response_class=HTMLResponse)
-    def subscription_manager(request: Request,profile:str='lee',query:str='',show:str='all',page:int=1,notice:str=''):
+    def subscription_manager(request: Request,profile:str='',query:str='',show:str='all',page:int=1,notice:str=''):
+        profile=profile or shortlist.options_load(live_state,[],takeout_root)[0]['profile']
         if show not in ('all','tracked','untracked') or len(query)>120:raise ValueError('Invalid filter.')
         rows,status=subscriptions.catalogue(live_state,profile,takeout_root)
         rows=[r for r in rows if query.casefold() in r['name'].casefold() and (show=='all' or r['tracked']==(show=='tracked'))]
@@ -253,7 +291,7 @@ def create_app(db_path=None, token=None, port=8765, live_state=None, theme_path=
         base='/subscriptions?'+urlencode(dict(profile=profile,query=query,show=show))
         return templates.TemplateResponse(request=request,name='subscriptions.html',context=dict(
             rows=rows[(page-1)*25:page*25],status=status,profile=profile,query=query,show=show,page=page,pages=pages,total=total,base=base,
-            csrf=token,plan=None,notice='Tracking saved locally. Refresh manually when ready.' if notice=='saved' else ''))
+            profiles=shortlist.profiles(takeout_root),image_mode=images.mode(live_state),csrf=token,plan=None,notice='Tracking saved locally. Refresh manually when ready.' if notice=='saved' else ''))
 
     @app.post('/subscriptions/preview',response_class=HTMLResponse)
     async def subscription_preview(request: Request):

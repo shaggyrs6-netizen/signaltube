@@ -54,4 +54,4 @@ def test_configuration_validation_and_urls(tmp_path):
     p.write_text(json.dumps(rows+[rows[0]]))
     with pytest.raises(ValueError):live.load_channels(p)
     p.write_text('[]')
-    with pytest.raises(ValueError):live.load_channels(p)
+    assert live.load_channels(p)==[]  # Users may remove all example channels.

@@ -1,9 +1,10 @@
 """Real local queues. Explicit build and reversible choices; never refreshes YouTube."""
 import json
+import math
 import secrets
 from datetime import datetime,timezone
 from urllib.parse import urlencode
-from . import library,shortlist,live
+from . import library,shortlist,live,images
 
 
 def build_plan(state,root,options):
@@ -56,7 +57,7 @@ def page(state,root,view='watch',category='',query='',page=1):
     if view not in ('watch','catchup','saved'):raise ValueError('Unknown view.')
     if len(query)>120 or len(category)>60:raise ValueError('Filter is too long.')
     data,cp,vp,categories=shortlist.context(state)
-    options,option_notice=shortlist.options_load(state,categories)
+    options,option_notice=shortlist.options_load(state,categories,root)
     with library.personal(state) as db:
         plan=db.execute('SELECT * FROM watch_plan WHERE id=1').fetchone()
         last=db.execute('SELECT token,action FROM watch_undo WHERE id=1').fetchone()
@@ -66,11 +67,13 @@ def page(state,root,view='watch',category='',query='',page=1):
         pref=vp.get(library.fingerprint(v['id']),{});c=channels[v['handle']]
         cats=json.loads(pref['categories']) if pref.get('categories') else c['categories']
         v.update(creator=c['name'],categories=cats,category=' · '.join(cats),kind=art_kind(cats),
+                 thumbnail=('thumbnail',v['id']) in data['media'],avatar=('avatar',v['handle']) in data['media'],
                  saved=bool(pref.get('saved')),review=pref.get('review','unreviewed'),stale=c['stale'] or not c['source'])
         available[library.fingerprint(v['id'])]=v
     pending=[v for v in available.values() if v['review']=='unreviewed']
     saved=[v for v in available.values() if v['saved']]
-    unavailable_saved=sum(p['saved'] for fp,p in vp.items() if fp not in available)
+    unavailable_entries=[dict(fingerprint=fp,review=p['review']) for fp,p in vp.items() if p['saved'] and fp not in available]
+    unavailable_saved=len(unavailable_entries)
     picks=[];alternatives=[];unavailable_plan=0;plan_notice='';generated=None
     if plan:
         generated=plan['generated'];built_options=json.loads(plan['options'])
@@ -100,6 +103,9 @@ def page(state,root,view='watch',category='',query='',page=1):
     successes=[c['source']['success'] for c in data['channels'] if c['source'] and c['source']['success']]
     return dict(view=view,category=category,query=query,page=page,pages=pages,total=total,groups=groups,
         picks=picks,alternatives=alternatives,generated=generated,unavailable_plan=unavailable_plan,
+        profiles=shortlist.profiles(root),image_mode=images.mode(state),unavailable_entries=unavailable_entries,
+        cooldown_minutes=max(0,math.ceil((data['control']['next_at']-data['now'])/60)),
+        fresh_channels=sum(bool(c['source'] and c['source']['success'] and data['now']-c['source']['success']<=86400) for c in data['channels']),
         options=options,option_notice=option_notice,plan_notice=plan_notice,categories=categories,
         pending=len(pending),saved_count=len(saved),unavailable_saved=unavailable_saved,
         handled=len(available)-len(pending),cached_count=len(available),quota=data['used'],cap=data['cap'],
@@ -108,3 +114,15 @@ def page(state,root,view='watch',category='',query='',page=1):
         stale_channels=sum(c['stale'] or not c['source'] for c in data['channels']),tracked_count=data['tracked_count'],
         undo=dict(last) if last else None,
         base='/watch?'+urlencode(dict(view=view,category=category,query=query)))
+
+
+def remove_unavailable(state,root,fp):
+    if fp not in {v['fingerprint'] for v in page(state,root,'saved')['unavailable_entries']}:
+        raise ValueError('This saved entry is no longer unavailable. Reload Saved.')
+    with library.personal(state) as db:
+        db.execute('BEGIN IMMEDIATE')
+        row=db.execute('SELECT saved,review,categories FROM video_preferences WHERE fingerprint=?',(fp,)).fetchone()
+        if not row or not row['saved']:raise ValueError('Saved entry already changed.')
+        db.execute('UPDATE video_preferences SET saved=0 WHERE fingerprint=?',(fp,))
+        db.execute('INSERT INTO watch_undo VALUES(1,?,?,?,?) ON CONFLICT(id) DO UPDATE SET token=excluded.token,fingerprint=excluded.fingerprint,before_state=excluded.before_state,action=excluded.action',
+                   (secrets.token_urlsafe(24),fp,json.dumps(dict(row)),'unsave'))

@@ -82,7 +82,7 @@ def test_web_csrf_filter_pagination_and_restart(data,tmp_path):
     def client():
         c=TestClient(create_app(tmp_path/'demo.sqlite3',token='test',live_state=state,takeout_root=root),base_url='http://127.0.0.1:8765');c.get('/?token=test');return c
     c=client();h={'origin':'http://127.0.0.1:8765'}
-    assert 'Your next five are a click away' in c.get('/watch').text
+    assert 'Ready to build your five' in c.get('/watch').text
     assert '8' in c.get('/watch?view=catchup').text
     f=dict(csrf='test',profile='local')
     assert c.post('/watch/build',data=f).status_code==403

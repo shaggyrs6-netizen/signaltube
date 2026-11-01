@@ -8,12 +8,15 @@ from . import live, library, takeout
 from .subscriptions import TEST_IDENTITIES
 
 
-DEFAULT_OPTIONS=dict(profile='lee',category='',use_history=True,exclude_history=True)
+DEFAULT_OPTIONS=dict(profile='local',category='',use_history=True,exclude_history=True)
 
-def options_load(state,categories):
+def options_load(state,categories,root=None):
     with library.personal(state) as db:
         row=db.execute('SELECT profile,category,use_history,exclude_history FROM shortlist_preferences WHERE id=1').fetchone()
     options=dict(row) if row else dict(DEFAULT_OPTIONS)
+    if not row and root is not None:
+        available=profiles(root)
+        if len(available)==1:options['profile']=available[0]
     options['use_history']=bool(options['use_history'])
     options['exclude_history']=bool(options['exclude_history'])
     notice=''
@@ -56,8 +59,9 @@ def history(profile,root):
     return counts,watched,last
 
 
-def candidate_data(state,root,profile='lee',category='',use_history=True,exclude_history=True,now=None):
+def candidate_data(state,root,profile=None,category='',use_history=True,exclude_history=True,now=None):
     now=time.time() if now is None else now
+    if profile is None:profile=options_load(state,[],root)[0]['profile']
     takeout.profile_path(profile,root) # Always validate; never silently fall back to demo.
     data,creators,preferences,categories=context(state)
     if category and category not in categories:raise ValueError('Choose a category currently available in your library.')
@@ -101,7 +105,7 @@ def candidate_data(state,root,profile='lee',category='',use_history=True,exclude
         quota=data['used'],cap=data['cap'],categories=categories)
 
 
-def build(state,root,profile='lee',category='',use_history=True,exclude_history=True,now=None):
+def build(state,root,profile=None,category='',use_history=True,exclude_history=True,now=None):
     data=candidate_data(state,root,profile,category,use_history,exclude_history,now)
     candidates=data.pop('candidates')
     # Greedy diversity adjustment, applied after each pick. Stable ties: newest, then video ID.
@@ -117,3 +121,14 @@ def build(state,root,profile='lee',category='',use_history=True,exclude_history=
         for cat in set(best['categories']):used_categories[cat]=used_categories.get(cat,0)+1
     return dict(**data,picks=selected[:5],alternatives=selected[5:],eligible=len(candidates),
                 available_creators=len({c['handle'] for c in candidates}))
+
+
+def profiles(root):
+    """Only list valid local import filenames; do not create or rename personal profiles."""
+    from pathlib import Path
+    result=[]
+    for path in sorted(Path(root).glob('*.sqlite3')):
+        try: takeout.profile_path(path.stem,root)
+        except ValueError: continue
+        if path.is_file() and not path.is_symlink():result.append(path.stem)
+    return result

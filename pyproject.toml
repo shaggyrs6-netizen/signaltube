@@ -1,6 +1,6 @@
 [project]
 name = "signaltube"
-version = "0.5.0b1"
+version = "0.6.0b1"
 description = "Local-first YouTube organiser with explainable picks and a catch-up queue"
 license = "MIT"
 readme = "README.md"

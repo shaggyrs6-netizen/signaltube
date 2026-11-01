@@ -33,8 +33,8 @@ def load_channels(path=STATE/'tracked-channels.json'):
     with path.open('rb') as f:raw=f.read(65537)
     if len(raw)>65536:raise ValueError('Tracking configuration is too large.')
     rows=json.loads(raw)
-    if not isinstance(rows,list) or not 1<=len(rows)<=50:
-        raise ValueError('Tracking configuration must contain 1–50 channels.')
+    if not isinstance(rows,list) or not 0<=len(rows)<=50:
+        raise ValueError('Tracking configuration must contain 0–50 channels.')
     result=[];keys=set()
     for row in rows:
         if not isinstance(row,dict):raise ValueError('Invalid tracking entry.')
@@ -82,6 +82,8 @@ def database(state=STATE):
             INSERT OR IGNORE INTO control(id) VALUES(1);
             CREATE TABLE IF NOT EXISTS sources(handle TEXT PRIMARY KEY, channel_id TEXT NOT NULL, playlist TEXT NOT NULL, title TEXT NOT NULL, fetched REAL NOT NULL, success REAL, baseline REAL);
             CREATE TABLE IF NOT EXISTS uploads(id TEXT PRIMARY KEY,handle TEXT NOT NULL,title TEXT NOT NULL,published TEXT NOT NULL,first_seen REAL NOT NULL,fetched REAL NOT NULL,baseline INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS media(kind TEXT NOT NULL,resource TEXT NOT NULL,url TEXT NOT NULL,fetched REAL NOT NULL,PRIMARY KEY(kind,resource));
+            CREATE TABLE IF NOT EXISTS image_cache(digest TEXT PRIMARY KEY,body BLOB NOT NULL,mime TEXT NOT NULL,expires REAL NOT NULL);
             PRAGMA user_version=1;''')
         yield db
     finally:
@@ -91,6 +93,8 @@ def prune(db, now):
     with db:
         db.execute('DELETE FROM uploads WHERE fetched<=?',(now-TTL,))
         db.execute('DELETE FROM sources WHERE fetched<=?',(now-TTL,))
+        db.execute('DELETE FROM media WHERE fetched<=?',(now-TTL,))
+        db.execute('DELETE FROM image_cache WHERE expires<=?',(now,))
 
 def key_path(state=STATE):
     return Path(state)/'secrets'/'youtube.key'
@@ -167,6 +171,7 @@ def reset_at(now):
     return datetime.combine(day,datetime.min.time(),PACIFIC).timestamp()
 
 def refresh(state=STATE,transport=request_api,now=None):
+    from . import images
     fixed_time = now
     now=time.time() if now is None else now
     state=Path(state); state.mkdir(parents=True,exist_ok=True,mode=0o700)
@@ -175,6 +180,7 @@ def refresh(state=STATE,transport=request_api,now=None):
         try: fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError: raise LiveError('A refresh is already running.') from None
         channels=current_channels(state)
+        if not channels: raise LiveError('Choose a channel before refreshing.')
         key=read_key(state)
         with database(state) as db:
             prune(db,now)
@@ -225,6 +231,7 @@ def refresh(state=STATE,transport=request_api,now=None):
                         if not ID.fullmatch(cid) or not re.fullmatch(r'[A-Za-z0-9_-]{10,100}',playlist) or not isinstance(title,str):
                             raise ValueError('Invalid channel metadata')
                         source=dict(channel_id=cid,playlist=playlist,title=title[:500],baseline=None)
+                        with db: images.remember(db,'avatar',handle,item['snippet'],now)
                     raw=fetch('playlistItems',{'part':'snippet,contentDetails','playlistId':source['playlist'],'maxResults':50})
                     if len(raw['items'])>50: raise ValueError('Unbounded response')
                     rows=[]
@@ -234,10 +241,11 @@ def refresh(state=STATE,transport=request_api,now=None):
                         if not published: continue # unavailable/private items have no reliable publication timestamp
                         stamp=datetime.fromisoformat(published.replace('Z','+00:00'))
                         if stamp.tzinfo is None: raise ValueError('Missing timezone')
-                        rows.append((vid,title[:1000],stamp.astimezone(timezone.utc).isoformat()))
+                        rows.append((vid,title[:1000],stamp.astimezone(timezone.utc).isoformat(),item['snippet']))
                     baseline=source['baseline'] is None
                     with db:
-                        for vid,title,published in rows:
+                        for vid,title,published,snippet in rows:
+                            images.remember(db,'thumbnail',vid,snippet,now)
                             old=db.execute('SELECT 1 FROM uploads WHERE id=?',(vid,)).fetchone()
                             if not old and not baseline:new_count+=1
                             db.execute('''INSERT INTO uploads VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,published=excluded.published,fetched=excluded.fetched''',
@@ -246,7 +254,7 @@ def refresh(state=STATE,transport=request_api,now=None):
                             db.execute('INSERT INTO sources VALUES(?,?,?,?,?,?,?)',(handle,source['channel_id'],source['playlist'],source['title'],now,now,now))
                         else:
                             # A playlist refresh does not refresh channel metadata's retention clock.
-                            db.execute('UPDATE sources SET success=? WHERE handle=?',(now,handle))
+                            db.execute('UPDATE sources SET success=?,baseline=coalesce(baseline,?) WHERE handle=?',(now,now,handle))
                 message=f'Refresh complete. {new_count} newly discovered items after baseline. Bounded to 50 recent items per channel.'
                 with db:db.execute('UPDATE control SET message=?',(message,))
                 return message
@@ -266,7 +274,8 @@ def status(state=STATE,now=None):
         used=db.execute('SELECT used FROM quota WHERE day=?',(quota_day(now),)).fetchone()
         sources={r['handle']:dict(r) for r in db.execute('SELECT * FROM sources')}
         return dict(used=used['used'] if used else 0,cap=CAP,key_ready=key_path(state).is_file(),tracked_count=len(channels),next_budget=refresh_budget(sources,channels),normal_budget=len(channels),
-                    control=dict(db.execute('SELECT * FROM control').fetchone()),
+                    control=dict(db.execute('SELECT * FROM control').fetchone()),now=now,
+                    media={(r['kind'],r['resource']) for r in db.execute('SELECT kind,resource FROM media')},
                     channels=[dict(handle=h,name=n,category=c,url=channel_url(h),source=sources.get(h),stale=bool(sources.get(h) and now-(sources[h]['success'] or 0)>86400)) for h,n,c in channels],
                     videos=[dict(r) for r in db.execute('SELECT * FROM uploads ORDER BY published DESC,id') if r['handle'] in {h for h,_,_ in channels}],
                     reset=reset_at(now))
